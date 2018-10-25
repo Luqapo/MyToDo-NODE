@@ -49,14 +49,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const newEditIn = document.createElement('input');
 
         const todoList = document.querySelector('.todo-list');
-
-        newLi.className = completed;
+        
         newLi.dataset.id = id;
         newInput.setAttribute("type", "checkbox");
         newInput.className = 'toggle';
         newLabel.innerText = text;
         newButton.className = 'destroy';
         newEditIn.className = 'edit';
+
+        if(completed){
+            newLi.className = 'completed';
+            newInput.checked = true;
+        } else {
+            newLi.className = '';
+        }
 
         newButton.addEventListener('click', function(event){
             const dataId = event.target.parentElement.parentElement.dataset.id;
@@ -74,6 +80,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Odpowiedź z back-endu:', ans);
                 getList();
             })
+        })
+
+        newInput.addEventListener('change', function(event){
+            if(event.target.checked){
+                event.target.parentElement.parentElement.className = 'completed';
+                const dataId = event.target.parentElement.parentElement.dataset.id;
+                fetch('/completed', {
+                    method : 'POST',
+                    body : JSON.stringify({
+                        completed: true,
+                        id: dataId
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(r => r.json())
+                .then(ans => {
+                    console.log('Odpowiedź z back-endu:', ans);
+                    getList();
+                })
+            } else {
+                event.target.parentElement.parentElement.className = '';
+                const dataId = event.target.parentElement.parentElement.dataset.id;
+                fetch('/completed', {
+                    method : 'POST',
+                    body : JSON.stringify({
+                        completed: false,
+                        id: dataId
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(r => r.json())
+                .then(ans => {
+                    console.log('Odpowiedź z back-endu:', ans);
+                    getList();
+                })
+            }
         })
 
         newDiv.appendChild(newInput);
