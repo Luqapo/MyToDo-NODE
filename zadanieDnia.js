@@ -21,16 +21,16 @@ app.listen(3000, () =>{
 
 app.post('/add', (req,res) =>{
     const newTodo = req.body;
-    let newId = 1;
+    let newId = 0;
     fs.readFile('./data/zadanieDniaDB/db.json', (err,data) => {
         const oldData = JSON.parse(data);
         if(oldData.length === 0){
             newId = 1;
+            newTodo.id = newId;
         } else {
             const newId = oldData[oldData.length - 1].id +1;
             newTodo.id = newId;
         }
-        
         fs.readFile('./data/zadanieDniaDB/db.json', (err,data) => {
             const db = JSON.parse(data);
             db.push(newTodo);
