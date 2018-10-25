@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function makeList(data){
         data.forEach(element => {
-            createLi(element.completed, element.text, element.id);
+            createLi(element.completed, element.text, element._id);
         });
     }
 
