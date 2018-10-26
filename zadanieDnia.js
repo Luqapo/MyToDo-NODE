@@ -32,11 +32,6 @@ app.get('/data', (req,res) => {
             res.json(posts);
         }
     })
-    // fs.readFile('./DB/db.json', (err,data) => {
-    //     const dataToSent = JSON.parse(data);
-    //     console.log(dataToSent);
-    //     res.json(dataToSent);
-    // })
 })
 
 router.route('/posts')
@@ -84,9 +79,8 @@ router.route('/posts/:post_id')
             if(err){
                 res.send(err);
             } else {
-                if(req.body.completed){
-                    post.completed = req.body.completed;
-                }
+                post.completed = req.body.completed;
+                
                 if(req.body.text){
                     post.text = req.body.text;
                 }
@@ -101,69 +95,15 @@ router.route('/posts/:post_id')
             }
         })
     })
-
-app.delete('/delete', (req,res) => {
-    const deleteData = req.body.id;
-    console.log(deleteData);
-    fs.readFile('./DB/db.json', (err,data) => {
-        if(!err){
-            const DB = JSON.parse(data);
-            DB.forEach((element,index) => {
-                if(element.id == deleteData){
-                    DB.splice(index, 1);
-                    const dbToWrite = JSON.stringify(DB);
-                    fs.writeFile('./DB/db.json', dbToWrite, (err,data) => {
-                        if (!err) {
-                            console.log('Usunięto');
-                            res.json({"Status": "ok"})
-                        } else {
-                            console.log('Błąd zapisu pliku', err);
-                        }
-                    })
-                }
-            });
-        } else {
-            console.log('Błąd' +err);
-        }
+    .delete((req,res) => {
+        Post.deleteOne({_id: req.params.post_id}, (err,post) => {
+            if(err){
+                res.send(err);
+            } else {
+                res.json({ message: 'Successfully deleted'});
+            }
+        })
     })
-})
-
-app.post('/completed', (req,res) => {
-    const changeData = req.body.id;
-    console.log(changeData);
-    fs.readFile('./DB/db.json', (err,data) => {
-        if(!err){
-            const DB = JSON.parse(data);
-            DB.forEach((element,index) => {
-                if(element.id == changeData){
-                    element.completed = req.body.completed;
-                    const dbToWrite = JSON.stringify(DB);
-                    fs.writeFile('./DB/db.json', dbToWrite, (err,data) => {
-                        if (!err) {
-                            console.log('Zmieniono');
-                            res.json({"Status": "ok"})
-                        } else {
-                            console.log('Błąd zapisu pliku', err);
-                        }
-                    })
-                }
-            });
-        } else {
-            console.log('Błąd' +err);
-        }
-    })
-})
-
-// fs.readFile('./DB/db.json', (err,data) => {
-//     if(!err){
-//         const DB = JSON.parse(data);
-//         DB.forEach(element => {
-//             console.log(element.text, element.completed);
-//         });
-//     } else {
-//         console.log('Błąd' +err);
-//     }
-// })
 
 app.use('/api', router);
 

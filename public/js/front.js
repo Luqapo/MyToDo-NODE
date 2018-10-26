@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         newButton.addEventListener('click', function(event){
             const dataId = event.target.parentElement.parentElement.dataset.id;
-            fetch('/delete', {
+            fetch(`/api/posts/${dataId}`, {
                 method : 'DELETE',
                 body : JSON.stringify({
                     id: dataId
