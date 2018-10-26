@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function getList() {
         const todoList = document.querySelector('.todo-list');
         todoList.innerHTML = '';
-        fetch('http://localhost:3000/data')
+        fetch('http://localhost:3000/api/posts')
         .then(resp => resp.json())
         .then(resp => makeList(resp))
     }
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newText = newTodo.value;
             newTodo.value = '';
 
-            fetch('/add', {
+            fetch('/api/posts', {
                 method : 'POST',
                 body : JSON.stringify({
                     text : newText,
@@ -64,6 +64,15 @@ document.addEventListener('DOMContentLoaded', () => {
             newLi.className = '';
         }
 
+        newLabel.addEventListener('dblclick', function(event){
+            event.target.contentEditable = 'true';
+            event.target.style.background = "lightgrey";
+            const dataId = event.target.parentElement.parentElement.dataset.id;
+        //     fetch(`http://localhost:3000/api/posts/${dataId}`)
+        // .then(resp => resp.json())
+        // .then(resp => makeList([resp]))
+        })
+
         newButton.addEventListener('click', function(event){
             const dataId = event.target.parentElement.parentElement.dataset.id;
             fetch('/delete', {
@@ -86,11 +95,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if(event.target.checked){
                 event.target.parentElement.parentElement.className = 'completed';
                 const dataId = event.target.parentElement.parentElement.dataset.id;
-                fetch('/completed', {
-                    method : 'POST',
+                fetch(`/api/posts/${dataId}`, {
+                    method : 'PUT',
                     body : JSON.stringify({
-                        completed: true,
-                        id: dataId
+                        completed: true
                     }),
                     headers: {
                         'Content-Type': 'application/json',
@@ -104,11 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 event.target.parentElement.parentElement.className = '';
                 const dataId = event.target.parentElement.parentElement.dataset.id;
-                fetch('/completed', {
-                    method : 'POST',
+                fetch(`/api/posts/${dataId}`, {
+                    method : 'PUT',
                     body : JSON.stringify({
-                        completed: false,
-                        id: dataId
+                        completed: false
                     }),
                     headers: {
                         'Content-Type': 'application/json',

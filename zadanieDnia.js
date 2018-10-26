@@ -13,8 +13,15 @@ const db = mongoose.connect(uri, {useNewUrlParser: true}, () => {
 
 const app = express();
 app.use(bodyParser.json());
-
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('./public/'));
+
+const router = express.Router();
+
+router.use((req,res,next) => {
+    console.log('Connection');
+    next();
+})
 
 app.get('/data', (req,res) => {
 
@@ -32,14 +39,9 @@ app.get('/data', (req,res) => {
     // })
 })
 
-app.listen(3000, () =>{
-    console.log('Server uruchomiony na porcie 3000');
-});
-
-app.post('/add', (req,res) =>{
+router.route('/posts')
+    .post((req,res) =>{
     const newTodo = req.body;
-    //let newId = 0;
-
     const newPost = new Post({
         text: newTodo.text,
         completed: newTodo.completed
@@ -48,34 +50,57 @@ app.post('/add', (req,res) =>{
     newPost.save()
         .then(result => {
         console.log(result);
+        res.json({"Status": "ok"});
         })
         .catch(err => console.log(err));
 
-    // fs.readFile('./DB/db.json', (err,data) => {
-    //     const oldData = JSON.parse(data);
-    //     if(oldData.length === 0){
-    //         newId = 1;
-    //         newTodo.id = newId;
-    //     } else {
-    //         const newId = oldData[oldData.length - 1].id +1;
-    //         newTodo.id = newId;
-    //     }
-    //     fs.readFile('./DB/db.json', (err,data) => {
-    //         const db = JSON.parse(data);
-    //         db.push(newTodo);
-    //         const dbToWrite = JSON.stringify(db);
-    //         fs.writeFile('./DB/db.json', dbToWrite, (err,data) => {
-    //             if (!err) {
-    //                 console.log('Dodano.');
-    //                 res.json({"Status": "ok"})
-    //             } else {
-    //                 console.log('Błąd zapisu pliku', err);
-    //             }
-    //         })
-    //     })
-    // })
     
-});
+    
+    })
+    .get((req,res) => {
+
+        Post.find((err,posts) => {
+            if(err){
+                res.send(err);
+            } else {
+                res.json(posts);
+            }
+        })
+    })
+
+
+router.route('/posts/:post_id')
+    .get((req,res) => {
+        Post.findById(req.params.post_id, (err,post) => {
+            if(err){
+                res.send(err);
+            } else {
+                res.json(post);
+            }
+        })
+    })
+    .put((req,res) =>{
+        Post.findById(req.params.post_id, (err,post) => {
+            if(err){
+                res.send(err);
+            } else {
+                if(req.body.completed){
+                    post.completed = req.body.completed;
+                }
+                if(req.body.text){
+                    post.text = req.body.text;
+                }
+
+                post.save(err => {
+                    if(err){
+                        res.send(err);
+                    } else {
+                        res.json({message: 'Post updated'});
+                    }
+                })
+            }
+        })
+    })
 
 app.delete('/delete', (req,res) => {
     const deleteData = req.body.id;
@@ -129,13 +154,19 @@ app.post('/completed', (req,res) => {
     })
 })
 
-fs.readFile('./DB/db.json', (err,data) => {
-    if(!err){
-        const DB = JSON.parse(data);
-        DB.forEach(element => {
-            console.log(element.text, element.completed);
-        });
-    } else {
-        console.log('Błąd' +err);
-    }
-})
+// fs.readFile('./DB/db.json', (err,data) => {
+//     if(!err){
+//         const DB = JSON.parse(data);
+//         DB.forEach(element => {
+//             console.log(element.text, element.completed);
+//         });
+//     } else {
+//         console.log('Błąd' +err);
+//     }
+// })
+
+app.use('/api', router);
+
+app.listen(3000, () =>{
+    console.log('Server uruchomiony na porcie 3000');
+});
