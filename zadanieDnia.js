@@ -1,5 +1,4 @@
 const express = require('express');
-const fs = require('fs');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const Post = require('./models/post');
@@ -21,17 +20,6 @@ const router = express.Router();
 router.use((req,res,next) => {
     console.log('Connection');
     next();
-})
-
-app.get('/data', (req,res) => {
-
-    Post.find((err,posts) => {
-        if(err){
-            res.send(err);
-        } else {
-            res.json(posts);
-        }
-    })
 })
 
 router.route('/posts')

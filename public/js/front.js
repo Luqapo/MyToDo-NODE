@@ -65,12 +65,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         newLabel.addEventListener('dblclick', function(event){
-            event.target.contentEditable = 'true';
-            event.target.style.background = "lightgrey";
-            const dataId = event.target.parentElement.parentElement.dataset.id;
-        //     fetch(`http://localhost:3000/api/posts/${dataId}`)
-        // .then(resp => resp.json())
-        // .then(resp => makeList([resp]))
+            event.target.parentElement.parentElement.className = 'editing';
+            const editInput = document.querySelector('.edit');
+            console.log(editInput);
+            editInput.addEventListener('keyup', function(event){
+                console.log(enevt);
+                if(event.keyCode === 13){
+                    const newText = editInput.value;
+                    event.target.parentElement.className = '';
+                    const dataId = event.target.parentElement.dataset.id;
+                    fetch(`/api/posts/${dataId}`, {
+                        method : 'PUT',
+                        body : JSON.stringify({
+                            text : newText
+                        }),
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(r => r.json())
+                    .then(ans => {
+                        console.log('Odpowiedź z back-endu:', ans);
+                        getList();
+                    })
+                    }
+            })
         })
 
         newButton.addEventListener('click', function(event){
