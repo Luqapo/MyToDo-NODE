@@ -36,10 +36,8 @@ router.route('/posts')
         res.json({"Status": "ok"});
         })
         .catch(err => console.log(err));
-
-    
-    
-    })
+        })
+        
     .get((req,res) => {
 
         Post.find((err,posts) => {
